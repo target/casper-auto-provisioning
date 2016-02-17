@@ -3,7 +3,7 @@ Auto Provision Casper Web Server and Database Server using Ansible
 
 ## What it does
 
-Auto provisions Casper Web Server and Database Server
+Auto provisions Casper Web Server and Database Server.  Details about Casper product can be found here: http://www.jamfsoftware.com/products/casper-suite/
 
 ## Requirements
 
