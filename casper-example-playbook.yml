@@ -1,0 +1,33 @@
+- name: Casper Dev Database Server Setup
+  hosts: casper-dev-db
+  user: testuser
+  sudo: yes
+  vars:
+    - jss_db: jamfsoftware
+    - jss_db_user: jamfsoftware
+    - jss_db_root_pass: *****
+    - jss_db_pass: *****
+    - mysql_data_dir: /var/lib/mysql
+    - jss_url: https://jss-server-name.testserver.com:8443/
+    - backup_serviceaccount_username: *****
+    - backup_serviceaccount_password: **********
+    - backup_server_path: server-name.testserver.com/share
+  roles:
+    - edge-casper-db
+
+- name: Casper WebApp Server Setup
+  hosts: casper-dev-webapp
+  user: testuser
+  sudo: yes
+  vars:
+    - java_package: java-1.8.0-openjdk-headless.x86_64
+    - tomcat_package: apache-tomcat-7.0.62.tar.gz
+    - jss_version: 9.81
+    - jss_keystore_pass: *****
+    - database_server: db-server-name.testserver.com
+    - database_name: *****
+    - database_user: *****
+    - database_password: *****
+    - ansible_hostname: jss-server-name.testerserver.com
+  roles:
+    - edge-casper-webapp

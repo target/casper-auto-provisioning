@@ -3,13 +3,13 @@ Auto Provision Casper Web Server and Database Server using Ansible
 
 ## What it does
 
-As this is a preview, this playbook will assume the following requirements at this point. We plan to have this in a more complete state soon.
+Auto provisions Casper Web Server and Database Server
 
-### Requirements:
+## Requirements
 
 There are two seperate plays in this repo, one for the database and one for the webapp.
 
-edge-casper-db
+<b>edge-casper-db</b>
 
 Ansible play to deploy mysql database setup for Casper
 
@@ -25,6 +25,7 @@ Requires the following vars:
 - backup_serviceaccount_password
 - backup_server_path
 
+<b>edge-casper-webapp</b>
 Ansible play to deploy a Casper JSS webapp
 
 Requires the following vars:
