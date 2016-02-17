@@ -26,6 +26,7 @@ Requires the following vars:
 - backup_server_path
 
 <b>edge-casper-webapp</b>
+
 Ansible play to deploy a Casper JSS webapp
 
 Requires the following vars:
