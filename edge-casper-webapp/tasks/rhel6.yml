@@ -1,0 +1,4 @@
+---
+
+- name: place the tomcat initscript
+  copy: src=jamf.tomcat7 dest=/etc/init.d/jamf.tomcat7 mode=0755 owner=root group=root

@@ -1,0 +1,20 @@
+#JAVA_OPTS="{{jss_java_opts}}"
+JSS_HOME=/usr/local/jss
+
+# Directory where the Tomcat 7 binary distribution resides
+CATALINA_HOME=/usr/local/jss/tomcat
+CATALINA_TMPDIR="/usr/local/jss/tomcat/temp"
+# Directory for per-instance configuration files and webapps
+CATALINA_BASE=/usr/local/jss/tomcat
+
+# Define other required variables
+CATALINA_SH="/usr/local/jss/tomcat/bin/catalina.sh"
+CATALINA_PID="/usr/local/jss/tomcat/tomcat.pid"
+
+# Use the Java security manager? (yes/no)
+TOMCAT7_SECURITY=no
+
+# Run Tomcat 7 as this user ID and group ID
+TOMCAT7_USER=tomcat7
+TOMCAT7_GROUP=tomcat7
+SECURITY_MANAGER="false"

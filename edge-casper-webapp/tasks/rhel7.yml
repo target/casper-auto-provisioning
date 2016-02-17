@@ -1,0 +1,7 @@
+---
+# INSTALL JSS VIA SYSTEMD
+- name: create /etc/sysconfig/jamf-tomcat
+  template: src=jamf-tomcat.j2 dest=/etc/sysconfig/jamf-tomcat owner=root group=root mode=0755
+
+- name: create the unitfile
+  copy: src=jamf-tomcat.service dest=/usr/lib/systemd/system/jamf-tomcat.service owner=root group=root mode=0755

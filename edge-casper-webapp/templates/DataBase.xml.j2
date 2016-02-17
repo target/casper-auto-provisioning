@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<DataBase>
+        <DataBaseType>mysql</DataBaseType>
+        <DataBaseDriver>com.mysql.jdbc.Driver</DataBaseDriver>
+        <ServerName>{{ database_server }}</ServerName>
+        <ServerPort>3306</ServerPort>
+        <DataBaseName>{{ database_name }}</DataBaseName>
+        <DataBaseUser>{{ database_user }}</DataBaseUser>
+        <DataBasePassword>{{ database_password }}</DataBasePassword>
+        <AcquireIncrement>5</AcquireIncrement>
+        <Partitions>1</Partitions>
+        <MinPoolSize>5</MinPoolSize>
+        <MaxPoolSize>90</MaxPoolSize>
+        <MaxIdleTimeExcessConnectionsInMinutes>1</MaxIdleTimeExcessConnectionsInMinutes>
+        <MaxConnectionAgeInMinutes>5</MaxConnectionAgeInMinutes>
+        <IdleConnectionTestPeriodInMinutes>0</IdleConnectionTestPeriodInMinutes>
+        <NumHelperThreads>3</NumHelperThreads>
+        <InStatementBatchSize>1000</InStatementBatchSize>
+        <jdbcParameters>?characterEncoding=utf8&amp;useUnicode=true&amp;jdbcCompliantTruncation=false</jdbcParameters>
+</DataBase>

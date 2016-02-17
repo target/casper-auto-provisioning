@@ -1,0 +1,96 @@
+---
+
+- name: install java
+  yum: state=latest name={{java_package}}
+
+- name: create the tomcat user
+  user: name=tomcat7 shell=/bin/bash createhome=no
+
+- name: create the JSS folder structure
+  file: path=/usr/local/jss state=directory owner=tomcat7 group=tomcat7
+- file: path=/usr/local/jss/logs state=directory owner=tomcat7 group=tomcat7
+
+- name: grab tomcat from artifactory
+  get_url: url=https://binrepo.target.com/artifactory/simple/EDGE/tomcat/{{tomcat_package}} dest=/tmp
+
+- name: unarchive tomcat into place
+  unarchive: copy=no src=/tmp/{{tomcat_package}} dest=/usr/local/jss owner=tomcat7 group=tomcat7
+
+- name: cleanup the temp tomcat package
+  file: path=/tmp/{{tomcat_package}} state=absent
+
+- name: rename tomcat
+  shell: mv /usr/local/jss/apache-tomcat* /usr/local/jss/tomcat
+  ignore_errors: yes
+
+- name: remove the existing webapps
+  shell: rm -rf /usr/local/jss/tomcat/webapps/*
+  ignore_errors: yes
+
+- name: create the ROOT webapps folder
+  file: path=/usr/local/jss/tomcat/webapps/ROOT state=directory owner=tomcat7 group=tomcat7
+
+- name: create the tomcat7 etc directory
+  file: path=/etc/tomcat7 state=directory owner=tomcat7 group=tomcat7
+
+- name: template the server config file
+  template: src=server.xml.j2 dest=/usr/local/jss/tomcat/conf/server.xml owner=tomcat7 group=tomcat7
+
+- name: fetch the war from artifactory
+  get_url: url=https://binrepo.target.com/artifactory/simple/EDGE/jss/{{jss_version}}/ROOT.war dest=/tmp
+
+- name: install unzip
+  yum: name=unzip state=latest
+
+- name: unarchive the WAR into the root tomcat folder
+  unarchive: src=/tmp/ROOT.war dest=/usr/local/jss/tomcat/webapps/ROOT copy=no
+
+- name: cleanup the WAR
+  file: path=/tmp/ROOT.war state=absent
+
+- name: Handle the Initscript differently on 6/7
+  include: 'rhel6.yml'
+  when: ansible_distribution_major_version == "6"
+- include: 'rhel7.yml'
+  when: ansible_distribution_major_version == "7"
+
+- name: folder should be recursively owned by tomcat7
+  file: path=/usr/local/jss owner=tomcat7 group=tomcat7 state=directory recurse=yes
+
+- name: make sure jamf.tomcat7 is enabled
+  service: name=jamf.tomcat7 enabled=true state=restarted
+
+- name: create the tomcat chain and rules
+  script: ip_tables_simple_add.sh tomcat7 8443
+  when: ansible_distribution_major_version == "6"
+
+- script: ip_tables_simple_add.sh tomcat7 8080
+  when: ansible_distribution_major_version == "6"
+
+- name: template out the database xml file
+  template: src=DataBase.xml.j2
+            dest=/usr/local/jss/tomcat/webapps/ROOT/WEB-INF/xml/DataBase.xml
+            owner=tomcat7
+            group=tomcat7
+            mode=0644
+  notify: restart tomcat
+
+- name: template the logging properties file
+  template: src=log4j.properties.j2 dest=/usr/local/jss/tomcat/webapps/ROOT/WEB-INF/classes/log4j.properties owner=tomcat7 group=tomcat7
+  notify: restart tomcat
+
+- name: generate the SSL Cert and keystore
+  script: gen_keystore.sh {{jss_keystore_pass}} {{ansible_hostname}} creates=/etc/tomcat7/keystore
+  ignore_errors: yes
+  notify: restart tomcat
+#
+- name: Template setenv.sh to set JAVA_OPTS
+  template: src=setenv.sh.j2 dest=/usr/local/jss/tomcat/bin/setenv.sh owner=tomcat7 group=tomcat7 mode=0755
+  notify: restart tomcat
+
+- name: copy the healthcheck script into place
+  copy: src=health.jsp dest=/usr/local/jss/tomcat/webapps/ROOT/healthcheck_1212389352978.jsp owner=tomcat7 group=tomcat7 mode=0755
+
+- name: Ensure Tomcat webapp is running
+  service: name=jamf.tomcat7 state=started
+  ignore_errors: yes

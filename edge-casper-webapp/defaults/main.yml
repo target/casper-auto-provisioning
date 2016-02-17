@@ -1,0 +1,2 @@
+---
+jss_java_opts: "-Xmx2048M -Xms512M"

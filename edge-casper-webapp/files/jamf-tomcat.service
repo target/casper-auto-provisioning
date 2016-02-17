@@ -1,0 +1,15 @@
+[Unit]
+Description=Tomcat JSS
+
+[Service]
+Type=simple
+SuccessExitStatus=143
+PIDFile=/usr/local/jss/tomcat/tomcat.pid
+ExecStart=/usr/local/jss/tomcat/bin/startup.sh
+ExecStop=/usr/local/jss/tomcat/bin/shutdown.sh
+User=tomcat7
+Group=tomcat7
+EnvironmentFile=/etc/sysconfig/jamf-tomcat
+
+[Install]
+WantedBy=multi-user.target

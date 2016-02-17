@@ -1,0 +1,36 @@
+! An appender for file-based Change Management logging
+log4j.appender.JAMFCMFILE=org.apache.log4j.RollingFileAppender
+log4j.appender.JAMFCMFILE.File=/usr/local/jss/logs/JAMFChangeManagement.log   
+log4j.appender.JAMFCMFILE.MaxFileSize=10MB
+log4j.appender.JAMFCMFILE.MaxBackupIndex=10
+log4j.appender.JAMFCMFILE.layout=org.apache.log4j.PatternLayout
+log4j.appender.JAMFCMFILE.layout.ConversionPattern=%m%n
+log4j.appender.JAMFCMFILE.encoding=UTF-8
+
+! An appender for Syslog-based Change Management logging
+log4j.appender.JAMFCMSYSLOG=org.apache.log4j.net.SyslogAppender
+log4j.appender.JAMFCMSYSLOG.syslogHost=127.0.0.1:514
+log4j.appender.JAMFCMSYSLOG.layout=org.apache.log4j.PatternLayout
+log4j.appender.JAMFCMSYSLOG.layout.ConversionPattern=%m%n
+log4j.appender.JAMFCMSYSLOG.Facility=local2
+
+! The basic appender definitions for com.jamfsoftware.jss classes
+log4j.appender.JAMF=org.apache.log4j.RollingFileAppender
+log4j.appender.JAMF.File=/usr/local/jss/logs/JAMFSoftwareServer.log
+log4j.appender.JAMF.MaxFileSize=100MB
+log4j.appender.JAMF.MaxBackupIndex=10
+log4j.appender.JAMF.layout=org.apache.log4j.PatternLayout
+log4j.appender.JAMF.layout.ConversionPattern=%d{ISO8601} [%-5p] [%-11.11t] [%-25.25c{1}] - %m%n
+log4j.appender.JAMF.encoding=UTF-8
+
+log4j.logger.com.jamfsoftware.jss.changemanagement.file=INFO,JAMFCMFILE
+log4j.additivity.com.jamfsoftware.jss.changemanagement.file=false
+
+log4j.logger.com.jamfsoftware.jss.changemanagement.syslog=INFO,JAMFCMSYSLOG
+log4j.additivity.com.jamfsoftware.jss.changemanagement.syslog=false
+
+log4j.logger.org.apache.http.wire=ERROR
+log4j.logger.httpclient.wire=ERROR
+log4j.logger.org.apache.commons.httpclient=ERROR
+
+log4j.rootLogger=INFO,JAMF

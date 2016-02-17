@@ -1,0 +1,15 @@
+[mysqld]
+datadir={{mysql_data_dir}}
+server_id={{mysql_server_id}}
+socket=/var/lib/mysql/mysql.sock
+user=mysql
+symbolic-links=0
+max_connections=1001
+max_allowed_packet=1024M
+log-bin=mysql-bin
+innodb_flush_log_at_trx_commit=1
+sync_binlog=1
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid

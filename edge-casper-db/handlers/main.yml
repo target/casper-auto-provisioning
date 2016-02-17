@@ -1,0 +1,9 @@
+---
+- name: restart mysqld
+  service: name={{mysql_service}} state=restarted
+
+- name: restart autofs
+  service: name=autofs state=restarted
+
+- name: restart sshd
+  service: name=sshd state=restarted

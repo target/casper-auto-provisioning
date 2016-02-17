@@ -1,0 +1,110 @@
+---
+- name: include packages based on RHEL version
+  include_vars: 'rhel6.yml'
+  when: ansible_distribution_major_version == "6"
+- include_vars: 'rhel7.yml'
+  when: ansible_distribution_major_version == "7"
+
+- name: install the required packages
+  yum: name={{item}} state=latest
+  with_items: database_packages
+
+- name: disable selinux
+  selinux: state=disabled
+
+- name: Set Server ID value using last octet
+  register: server_id
+  script: get_last_octet.sh
+
+- debug: msg="output of above is {{ server_id.stdout.strip() }}"
+- set_fact: mysql_server_id={{ server_id.stdout.strip() }}
+
+- name: Check for our JAMF suggested mysql values
+  template: src=my.cnf.{{ansible_distribution_major_version}}.j2 dest=/etc/my.cnf owner=root group=root mode=0644
+  notify: restart mysqld
+
+- name: start mysqld
+  service: name={{mysql_service}} state=started enabled=yes
+
+- name: run our bash wrapper for expect/mysql_secure_installation
+  script: secure_wrapper.sh {{jss_db_root_pass}} creates=/etc/mysql_secured
+
+- name: setup the casper mysql database and user
+  mysql_db: name={{jss_db}}
+            state=present
+            login_user=root
+            login_password={{jss_db_root_pass}}
+- mysql_user: name={{jss_db_user}}
+              login_user=root
+              login_password={{jss_db_root_pass}}
+              state=present
+              priv=jamfsoftware.*:ALL
+              password={{jss_db_pass}}
+              host='%'
+
+- name: create iptables rules and chain for RHEL 6
+  script: ip_tables_simple_add.sh mysqld 3306
+  when: ansible_distribution_major_version == "6"
+
+- name: template out the automounter EDGE config file
+  template: src=auto.edge.j2
+            dest=/etc/auto.edge
+            owner=root
+            group=root
+            mode=0644
+
+- name: Add auto.edge reference to autofs master config
+  lineinfile: dest=/etc/auto.master line="/- auto.edge" owner=root group=root mode=0644
+
+- name: Restart autofs
+  service: name=autofs state=restarted
+
+- name: set ClientAliveCountMax gt 0 to avoid disconnect during mysql load
+  sudo: yes
+  lineinfile: >
+    dest=/etc/ssh/sshd_config regexp="^ClientAliveCountMax 0" line="ClientAliveCountMax 1000" state=present
+
+- name: set ClientAliveInterval gt 0 to avoid disconnect during mysql load
+  sudo: yes
+  lineinfile: >
+    dest=/etc/ssh/sshd_config regexp="^ClientAliveInterval 300" line="ClientAliveInterval 1000" state=present
+
+- name: restart SSH
+  service: name=sshd state=restarted
+
+- name: Grab latest backup from EDGE server
+  script: load_mysqlbackup.sh
+
+- name: Load the Database from Backup
+  tags: db-load
+  sudo: yes
+  mysql_db: name={{jss_db}} login_user=root login_password={{jss_db_root_pass}} state=import target=/tmp/backup.sql
+
+- name: Cleanup backup
+  tags: db-load
+  sudo: yes
+  file: dest=/tmp/backup.sql.gz state=absent
+
+- name: Update JSS URL in Database
+  command: >
+    mysql -u {{jss_db_user}} --password={{jss_db_pass}} {{jss_db}}  -e "update jss_server_url SET https='{{jss_url}}'"
+
+- name: remove clustering setup the JSS for a single node
+  command: >
+    mysql -u {{jss_db_user}} --password={{jss_db_pass}} {{jss_db}} -e "UPDATE jss_cluster_settings SET clustered=0"
+
+- name: confirm our change
+  command: >
+    mysql -u {{jss_db_user}} --password={{jss_db_pass}} {{jss_db}} -e "SELECT clustered from jss_cluster_settings\G"
+  register: clustered
+  failed_when: "'clustered: 1' in clustered.stdout"
+
+- name: remove all nodes from the cluster table
+  command: >
+    mysql -u {{jss_db_user}} --password={{jss_db_pass}} {{jss_db}} -e "DELETE from jss_cluster_nodes"
+
+- name: confirm above
+  command: >
+    mysql -u {{jss_db_user}} --password={{jss_db_pass}} {{jss_db}} -e "SELECT COUNT(*) AS nodes from jss_cluster_nodes\G"
+  register: cluster_nodes
+  failed_when: "'nodes: 0' not in cluster_nodes.stdout"

@@ -1,0 +1,12 @@
+---
+database_packages:
+  - mysql
+  - mysql-server
+  - MySQL-python
+  - autofs
+  - samba
+  - nano
+  - cifs-utils
+  - expect
+mysql_service: mysqld
+autofs_service: autofs

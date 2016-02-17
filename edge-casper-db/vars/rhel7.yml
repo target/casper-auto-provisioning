@@ -1,0 +1,11 @@
+---
+database_packages:
+  - mariadb
+  - mariadb-server
+  - MySQL-python
+  - autofs
+  - samba
+  - cifs-utils
+  - expect
+mysql_service: mariadb
+autofs_service: autofs
