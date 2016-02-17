@@ -1,4 +1,4 @@
-edge.casper-db
+edge-casper-db
 ======
 
 mysql database setup for Casper
