@@ -7,7 +7,7 @@ Auto provisions Casper Web Server and Database Server
 
 ## Requirements
 
-There are two seperate plays in this repo, one for the database and one for the webapp.
+There are two seperate roles in this repo, one for the database and one for the webapp.
 
 <b>edge-casper-db</b>
 
