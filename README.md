@@ -3,7 +3,9 @@ Auto Provision Casper Web Server and Database Server using Ansible
 
 ## What it does
 
-Auto provisions Casper Web Server and Database Server.  Details about Casper product can be found here: http://www.jamfsoftware.com/products/casper-suite/
+This playbook will deploy a Casper JSS Web Server and Database Server then properly import a database backup from a defined CIFS share.
+
+Details about Casper product can be found here: http://www.jamfsoftware.com/products/casper-suite/
 
 ## Requirements
 
